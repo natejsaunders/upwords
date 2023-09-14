@@ -24,13 +24,13 @@ class upwords_board:
         self.first_go = True
 
 
-    # Used to check if a given string is allowed
+    # Used to check if a given string is allowed (we also allow Qu because we need to)
     def is_allowed_word(self, word):
-        return word.lower() in self.wordlist
+        if word == 'Qu': return True
+        else: return word.lower() in self.wordlist
     
     # Check if a line (row or column) is valid
     def is_allowed_line(self, line):
-
         tiles = [t[0] for t in line]
 
         words = []
@@ -49,7 +49,8 @@ class upwords_board:
     
     # Used to add letters to the board, updating it and checking the go is legal
     def place(self, word, y, x, dir):
-
+        
+        word = word.upper()
         # Directions (vertical or horizontal)
         directions = {
             'v' : [1, 0],
@@ -57,40 +58,60 @@ class upwords_board:
         }
         dir = directions[dir]
 
+        # Managing the Qu tile
+        try:
+            q_loc = word.index('Q')
+            if q_loc >= 0: word = word[:q_loc + 1] + word[q_loc + 2:]
+        except ValueError:
+            pass
+
         # Place the word - then check all words on the board are valid
         new_tiles = copy.deepcopy(self.tiles)
 
+        score = 0
+
         # Place the tiles
-        tiles_empty = True # USed to ensure that the word is being placed on top of another
+        tiles_empty = True # Used to ensure that the word is being placed on top of another
         for i in range(len(word)):
             # I know this is lazy deal with it
             try:
                 tile = new_tiles[x + dir[0] * i][y + dir[1] * i]
             except IndexError:
-                return False
+                return 0
             
             if tile[1] > 0:
                 tiles_empty = False
 
-            tile[0] = word[i].upper()
+            # Managing Qu tile, also checking placed tile is different
+            if word[i] == 'Q':
+                if tile[0] == 'Qu': return 0
+                tile[0] = 'Qu'
+            else:
+                if tile[0] == word[i]: return 0
+                tile[0] = word[i]
+
             tile[1] += 1
+            score += tile[1]
 
             # Check if the square has too many tiles
             if tile[1] > 5:
-                return False
+                return 0
+            
         # If there is no word being played on and it isn't the first go: fail
-        if tiles_empty and not self.first_go: return False
+        if tiles_empty and not self.first_go: return 0
 
         # Now check that every word on the board is valid (this may be more effecient if you only check modified rows and columns but i cba to try)
         for row in new_tiles:
-            if not self.is_allowed_line(row): return False
+            if not self.is_allowed_line(row): return 0
 
         for i in range(self.size):
-            if not self.is_allowed_line([row[i] for row in new_tiles]): return False
+            if not self.is_allowed_line([row[i] for row in new_tiles]): return 0
         
+        # Update tiles to the changed tiles as the go is valid
         self.tiles = new_tiles
+
         self.first_go = False
-        return True
+        return score
             
     # Return a nice way of presenting the board
     def __str__(self):
@@ -104,7 +125,8 @@ class upwords_board:
         for row in self.tiles:
             board_return += '\n|  '
             for tile in row:
-                board_return += tile[0] + '  '
+                if tile[0] == 'Qu': board_return += tile[0] + ' '
+                else: board_return += tile[0] + '  '
             board_return += '|\n'
             board_return += '|' + '   ' * self.size + '  |'
 
