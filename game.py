@@ -2,7 +2,7 @@ import random
 
 # Class for storing information about an upwords player
 
-class player:
+class upwords_player:
     def __init__(self, name, tiles):
         self.name = name
         self.score = 0
@@ -11,8 +11,38 @@ class player:
     def __str__(self):
         return self.name
     
-    def get_tiles(self):
-        return self.tiles.copy()
+    def go(self):
+        while True:
+            x = input('X-Coordinate to Place: ')
+            y = input('Y-Coordinate to Place: ')
+            try:
+                x = int(x)
+                y = int(y)
+                break
+            except ValueError:
+                print('Coordinates not numbers')
+        
+        while True:
+            word = list(input('Word to place').upper())
+
+            if  all(c in self.tiles for c in word):
+                break
+
+            print('Word not possible with available tiles')
+        
+        while True:
+            direction = input('Direction (H)orizontal or (V)ertical: ').upper()
+
+            if direction == 'H' or direction == 'V':
+                break
+
+            print('Direction needs to be \'h\' or \'v\'')
+
+        return x, y, word, direction
+
+    
+    def has_tiles(self):
+        return len(self.tiles) != 0
     
 # Class for storing information about a game of upwords
 
@@ -33,10 +63,12 @@ class upwords_game:
         tile_rack_size = 7
 
         for i in range(num_of_players):
-            self.players.append(player(input('Player ' + str(i) + ' Name: '), self.tiles[-tile_rack_size:]))
+            self.players.append(upwords_player(input(f'Player {str(i)} Name: '), self.tiles[-tile_rack_size:]))
             self.tiles = self.tiles[:-tile_rack_size]
 
         # Game loop 
-        while len(self.tiles) != 0 or all(map(lambda x: len(x) != 0, map(player.get_tiles, self.players))): # Fun bit of code to check that the tiles list has letters in or that all of the players tiles list has tiles in
-            self.players[0].tiles.pop()
-            print(list(map(lambda x: len(x) != 0, map(player.get_tiles, self.players))))
+        while len(self.tiles) != 0 or all(map(upwords_player.has_tiles, self.players)): # Check that the tiles list has letters in or that all of the players tiles list has tiles in
+            for player in self.players:
+                while True:
+                    self.board.place(player.go())
+                

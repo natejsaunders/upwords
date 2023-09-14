@@ -1,5 +1,6 @@
 from PyDictionary import PyDictionary
 import copy
+import time
 
 # Class to store board data in, and also ensure goes are legal
 class upwords_board:
@@ -17,8 +18,7 @@ class upwords_board:
         self.size = size
 
         # Initialise possible words
-        with open('wordlist.txt', 'r') as wl:
-            self.wordlist = [line[:-1] for line in wl.readlines()]
+        with open('wordlist.txt', 'r') as wl: self.wordlist = [line[:-1] for line in wl.readlines()]
 
         # Used to determine whether it is the first go on this board
         self.first_go = True
