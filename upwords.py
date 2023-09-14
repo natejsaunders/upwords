@@ -8,8 +8,4 @@ from board import upwords_board
 # New board that is 8x8 (default size)
 board = upwords_board(8)
 
-print(board.place('frrfrij', 0, 0, 'v'))
-print(board.place('boot', 0, 0, 'h', True))
-print(board.place('fight', 0, 0, 'v'))
-
 print(board)

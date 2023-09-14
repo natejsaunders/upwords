@@ -20,6 +20,9 @@ class upwords_board:
         with open('wordlist.txt', 'r') as wl:
             self.wordlist = [line[:-1] for line in wl.readlines()]
 
+        # Used to determine whether it is the first go on this board
+        self.first_go = True
+
 
     # Used to check if a given string is allowed
     def is_allowed_word(self, word):
@@ -45,7 +48,7 @@ class upwords_board:
         
     
     # Used to add letters to the board, updating it and checking the go is legal
-    def place(self, word, y, x, dir, first_go = False):
+    def place(self, word, y, x, dir):
 
         # Directions (vertical or horizontal)
         directions = {
@@ -76,7 +79,7 @@ class upwords_board:
             if tile[1] > 5:
                 return False
         # If there is no word being played on and it isn't the first go: fail
-        if tiles_empty and not first_go: return False
+        if tiles_empty and not self.first_go: return False
 
         # Now check that every word on the board is valid (this may be more effecient if you only check modified rows and columns but i cba to try)
         for row in new_tiles:
@@ -86,6 +89,7 @@ class upwords_board:
             if not self.is_allowed_line([row[i] for row in new_tiles]): return False
         
         self.tiles = new_tiles
+        self.first_go = False
         return True
             
     # Return a nice way of presenting the board
