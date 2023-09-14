@@ -11,6 +11,9 @@ class player:
     def __str__(self):
         return self.name
     
+    def get_tiles(self):
+        return self.tiles.copy()
+    
 # Class for storing information about a game of upwords
 
 class upwords_game:
@@ -34,5 +37,6 @@ class upwords_game:
             self.tiles = self.tiles[:-tile_rack_size]
 
         # Game loop 
-        while len(self.tiles == 0) and any(len(self.players.tiles) == 0):
-            pass
+        while len(self.tiles) != 0 or all(map(lambda x: len(x) != 0, map(player.get_tiles, self.players))): # Fun bit of code to check that the tiles list has letters in or that all of the players tiles list has tiles in
+            self.players[0].tiles.pop()
+            print(list(map(lambda x: len(x) != 0, map(player.get_tiles, self.players))))
