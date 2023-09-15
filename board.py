@@ -2,6 +2,8 @@ from PyDictionary import PyDictionary
 import copy
 import time
 
+# TODO Make scoring happen for all words and columns that have been played on, also check only these words on columns for changes
+
 # Class to store board data in, and also ensure goes are legal
 class upwords_board:
 
@@ -39,24 +41,29 @@ class upwords_board:
             if t != self.empty_tile:
                 word += t
             elif len(word) > 1:
-                words.append(word)
+                words.append(''.join(word))
                 word = []
             else:
                 word = []
 
+        print(words)
         return all(map(self.is_allowed_word, words))
         
     
     # Used to add letters to the board, updating it and checking the go is legal
-    def place(self, word, y, x, dir):
-        
+    def place(self, placement_data):
+        word = placement_data['word']
+        y =    placement_data['y']
+        x =    placement_data['x']
+        direction =  placement_data['direction']
+
         word = word.upper()
         # Directions (vertical or horizontal)
         directions = {
             'v' : [1, 0],
             'h' : [0, 1]
         }
-        dir = directions[dir]
+        direction = directions[direction]
 
         # Managing the Qu tile
         try:
@@ -75,7 +82,7 @@ class upwords_board:
         for i in range(len(word)):
             # I know this is lazy deal with it
             try:
-                tile = new_tiles[x + dir[0] * i][y + dir[1] * i]
+                tile = new_tiles[x + direction[0] * i][y + direction[1] * i]
             except IndexError:
                 return 0
             
