@@ -11,5 +11,7 @@ def main():
     board = upwords_board(8)
     game = upwords_game(2, board)
 
+    game.start()
+
 if __name__ == "__main__":
     main()

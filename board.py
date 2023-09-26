@@ -90,7 +90,9 @@ class upwords_board:
                 tiles_empty = False
 
             # Managing Qu tile, also checking placed tile is different
-            if word[i] == 'Q':
+            if word[i] == ' ':
+                pass
+            elif word[i] == 'Q':
                 if tile[0] == 'Qu': return 0
                 tile[0] = 'Qu'
             else:

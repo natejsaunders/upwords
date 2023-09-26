@@ -12,6 +12,7 @@ class upwords_player:
     def __str__(self):
         return self.name
     
+    # Get a Player's Input on what and where to place, also make sure the go is valid
     def go(self):
         while True:
             x = input('Y-Coordinate to Place: ')
@@ -26,7 +27,7 @@ class upwords_player:
         while True:
             word = list(input('Word to place: ').upper())
 
-            if  all(c in self.tiles for c in word):
+            if  all(c in self.tiles or c == " " for c in word):
                 word = "".join(word)
                 break
 
@@ -71,26 +72,29 @@ class upwords_game:
             self.players.append(upwords_player(input(f'Player {str(i)} Name: '), self.tiles[-tile_rack_size:]))
             self.tiles = self.tiles[:-tile_rack_size]
 
+    def get_valid_player_go(self, player):
+        while True:
+            print(self.board)
+            print(f'{player} to go (score: {player.score}) with tiles: {player.tiles}')
+            player_go = player.go()
+            score = self.board.place(player_go)
+
+            # If score is not 0 then the go is legal
+            if score > 0:
+                for placed_tile in player_go['word']:
+                    if placed_tile != ' ': player.tiles.remove(placed_tile)
+
+                for i in range(len(player_go['word'])):
+                    if len(self.tiles) > 0: player.tiles.append(self.tiles.pop())
+
+                player.score += score
+                self.gui.update(self.board)
+                break
+
+            print('Go not valid, try again.')
+                    
+    def start(self):
         # Game loop 
         while len(self.tiles) != 0 or all(map(upwords_player.has_tiles, self.players)): # Check that the tiles list has letters in or that all of the players tiles list has tiles in
             for player in self.players:
-                while True:
-                    print(self.board)
-                    print(f'{player} to go (score: {player.score}) with tiles: {player.tiles}')
-                    player_go = player.go()
-                    score = self.board.place(player_go)
-
-                    # If score is not 0 then the go is legal
-                    if score > 0:
-                        for placed_tile in player_go['word']:
-                            player.tiles.remove(placed_tile)
-
-                        for i in range(len(player_go['word'])):
-                            if len(self.tiles) > 0: player.tiles.append(self.tiles.pop())
-
-                        player.score += score
-                        self.gui.update(self.board)
-                        break
-
-                    print('Go not valid, try again.')
-                    
+                self.get_valid_player_go(player)
