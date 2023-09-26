@@ -1,4 +1,5 @@
 import random
+from gui import upwords_gui
 
 # Class for storing information about an upwords player
 
@@ -49,6 +50,9 @@ class upwords_player:
 
 class upwords_game:
     def __init__(self, num_of_players, game_board):
+
+        self.gui = upwords_gui()
+
         self.players = []
         self.board = game_board
 
@@ -85,6 +89,7 @@ class upwords_game:
                             if len(self.tiles) > 0: player.tiles.append(self.tiles.pop())
 
                         player.score += score
+                        self.gui.update(self.board)
                         break
 
                     print('Go not valid, try again.')
