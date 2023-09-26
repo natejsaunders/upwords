@@ -3,7 +3,7 @@ from gui import upwords_gui
 
 # Class for storing information about an upwords player
 
-class upwords_player:
+class Player:
     def __init__(self, name, tiles):
         self.name = name
         self.score = 0
@@ -49,7 +49,7 @@ class upwords_player:
     
 # Class for storing information about a game of upwords
 
-class upwords_game:
+class Game:
     def __init__(self, num_of_players, game_board):
 
         self.gui = upwords_gui()
@@ -69,7 +69,7 @@ class upwords_game:
         tile_rack_size = 7
 
         for i in range(num_of_players):
-            self.players.append(upwords_player(input(f'Player {str(i)} Name: '), self.tiles[-tile_rack_size:]))
+            self.players.append(Player(input(f'Player {str(i)} Name: '), self.tiles[-tile_rack_size:]))
             self.tiles = self.tiles[:-tile_rack_size]
 
     def get_valid_player_go(self, player):
@@ -95,6 +95,6 @@ class upwords_game:
                     
     def start(self):
         # Game loop 
-        while len(self.tiles) != 0 or all(map(upwords_player.has_tiles, self.players)): # Check that the tiles list has letters in or that all of the players tiles list has tiles in
+        while len(self.tiles) != 0 or all(map(Player.has_tiles, self.players)): # Check that the tiles list has letters in or that all of the players tiles list has tiles in
             for player in self.players:
                 self.get_valid_player_go(player)

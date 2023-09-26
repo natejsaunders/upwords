@@ -3,13 +3,13 @@
 # By Nate Saunders 14/9/23
 # V1.0
 
-from board import upwords_board
-from game import upwords_game
+from board import Board
+from game import Game
 
 def main():
     # New board that is 8x8 (default size)
-    board = upwords_board(8)
-    game = upwords_game(2, board)
+    board = Board(8)
+    game = Game(2, board)
 
     game.start()
 
