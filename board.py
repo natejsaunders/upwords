@@ -27,9 +27,45 @@ class Board:
         self.first_go = True
 
 
-    # Used to check if a given string is allowed (we also allow Qu because we need to)
+    # Used to check if a given string is allowed (word is a 2d array of tiles we need to check for the last one)
     def is_allowed_word(self, word):
-        return word.lower() in self.wordlist
+
+        check_word = ''.join(map(str, word))
+
+        return check_word.lower() in self.wordlist 
+    
+    # Used to check that a word in a given direction is allowed
+    def check_line(self, tiles, tile_x, tile_y, direction):
+        score = 0
+        print(tiles)
+        print(tile_y, tile_x, direction)
+        check_line = [tiles[tile_x][tile_y][-1]]
+        print(check_line)
+
+        # We want to check in both + and - directions
+        for multiplier in (-1, 1):
+            check_square = []
+            multiplier_index = multiplier
+            while True:
+                try:
+                    check_square = tiles[tile_x + direction[0] * multiplier_index][tile_y + direction[1] * multiplier_index]
+                except IndexError:
+                    break
+
+                if len(check_square) == 0:  
+                    break
+                
+                if multiplier == -1:
+                    check_line.insert(0, check_square[-1])
+                else:
+                    check_line.append(check_square[-1])
+
+                score += len(check_square)
+                multiplier_index += multiplier
+
+        if len(check_line) <= 1: return -1
+        elif self.is_allowed_word(check_line): return score
+        else: return 0
     
     # Used to add letters to the board, updating it and checking the go is legal
     def place(self, placement_data):
@@ -45,7 +81,8 @@ class Board:
             'h' : [0, 1]
         }
         direction = directions[dir_in]
-        opp_dir = direction.reverse()
+        opp_dir = direction.copy()
+        opp_dir.reverse()
 
         # Place the word - then check all words on the board are valid
         new_tiles = copy.deepcopy(self.tiles)
@@ -55,26 +92,33 @@ class Board:
         # Place the tiles
         tiles_empty = True # Used to ensure that the word is being placed on top of another
         for i, tile in enumerate(word):
-            this_x = x + direction[0] * i
-            this_y = y + direction[1] * i
+            
+            #score -= len(tile)
+
+            this_tile_x = x + direction[0] * i
+            this_tile_y = y + direction[1] * i
             # I know this is lazy deal with it
             try:
-                grid_square = new_tiles[this_x][this_y]
+                placement_square = new_tiles[this_tile_x][this_tile_y]
             except IndexError:
                 return 0
             
-            if tiles_empty and len(grid_square) >= 1:
+            if tiles_empty and len(placement_square) >= 1:
                 tiles_empty = False
-
-            check_line = [tile]
-            for multiplier in (-1, 1):
-                check_square = []
-                while len(check_square) > 0:
-                    check_square = new_tiles[this_x + opp_dir[0] * multiplier][this_y + opp_dir[1] * multiplier]
-                if multiplier is -1:
-
-                else:
             
+            new_tiles[this_tile_x][this_tile_y].append(Tile(tile))
+            this_line_score = self.check_line(new_tiles, this_tile_x, this_tile_y, opp_dir)
+
+            if this_line_score < 0: pass
+            elif this_line_score: score += this_line_score
+            else: return 0
+
+        this_line_score = self.check_line(new_tiles, x, y, direction)
+
+        score += len(new_tiles[x][y])
+        if this_line_score: score += this_line_score
+        else: return 0
+                    
         # If there is no word being played on and it isn't the first go: fail
         if tiles_empty and not self.first_go: return 0
         
@@ -95,7 +139,10 @@ class Board:
         for row in self.tiles:
             board_return += '\n|  '
             for tile in row:
-                board_return += tile[-1] + ' '
+                if tile:
+                    board_return += tile[-1].get_printout() + '  '
+                else:
+                    board_return += '_  '
             board_return += '|\n'
             board_return += '|' + '   ' * self.size + '  |'
 

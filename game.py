@@ -1,5 +1,6 @@
 import random
 from gui import upwords_gui
+from tile import Tile
 
 # Class for storing information about an upwords player
 
@@ -27,8 +28,8 @@ class Player:
         while True:
             word = list(input('Word to place: ').upper())
 
-            if  all(c in self.tiles or c == " " for c in word):
-                word = "".join(word)
+            if all(c in map(str, self.tiles) or c == ' '  for c in word):
+                word = ''.join(word)
                 break
 
             print('Word not possible with available tiles')
@@ -57,12 +58,16 @@ class Game:
         self.players = []
         self.board = game_board
 
-        self.tiles = ['F', 'J', 'Qu', 'V', 'W', 'X', 'Z',
+        tile_set = ['F', 'J', 'Qu', 'V', 'W', 'X', 'Z',
                       'B', 'B', 'C', 'C', 'G', 'G', 'H', 'H', 'R', 'R', 'Y', 'Y',
                       'D', 'D', 'D', 'L', 'L', 'L', 'M', 'M', 'M', 'N', 'N', 'N', 'P', 'P', 'P', 'S', 'S', 'S', 'U', 'U', 'U',
                       'I', 'I', 'I', 'I', 'O', 'O', 'O', 'O', 'T', 'T', 'T', 'T',
                       'A', 'A', 'A', 'A', 'A', 
                       'E', 'E', 'E', 'E', 'E', 'E']
+        
+        self.tiles = []
+        for t in tile_set:
+            self.tiles.append(Tile(t))
         
         random.shuffle(self.tiles)
 
@@ -72,17 +77,27 @@ class Game:
             self.players.append(Player(input(f'Player {str(i)} Name: '), self.tiles[-tile_rack_size:]))
             self.tiles = self.tiles[:-tile_rack_size]
 
+    def tile_set_to_readable(self, tile_set) -> str:
+        
+        return_str = ''
+
+        for t in tile_set:
+            return_str += str(t) + ', '
+
+        return return_str
+
     def get_valid_player_go(self, player):
         while True:
             print(self.board)
-            print(f'{player} to go (score: {player.score}) with tiles: {player.tiles}')
+            print(f'{player} to go (score: {player.score}) with tiles: {self.tile_set_to_readable(player.tiles)}')
             player_go = player.go()
             score = self.board.place(player_go)
 
             # If score is not 0 then the go is legal
             if score > 0:
                 for placed_tile in player_go['word']:
-                    if placed_tile != ' ': player.tiles.remove(placed_tile)
+                    if placed_tile != ' ': 
+                        del player.tiles[list(map(str, player.tiles)).index(placed_tile)]
 
                 for i in range(len(player_go['word'])):
                     if len(self.tiles) > 0: player.tiles.append(self.tiles.pop())

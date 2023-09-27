@@ -6,6 +6,7 @@ from tkinter import ttk
 
 class upwords_gui:
     def __init__(self):
+        return
         self.root = Tk()
         self.root.title("UPWORDS")
 
@@ -13,6 +14,7 @@ class upwords_gui:
         self.root.rowconfigure(0, weight=1)
 
     def update(self, board):
+        return
         tiles = board.tiles
 
         for x, col in enumerate(tiles):

@@ -9,11 +9,14 @@ class Tile:
 
         if letter == '':
             self.blank = True
-        else:
-            self.letter = letter
+
+        self.letter = letter
 
     def get_letter(self):
-        return self.letter.lower()
+        return self.letter
     
     def get_printout(self):
+        return self.letter
+    
+    def __str__(self) -> str:
         return self.letter
